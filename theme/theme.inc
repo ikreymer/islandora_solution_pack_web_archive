@@ -114,19 +114,19 @@ function init_wr_collection($warc_url, $object, $dc) {
   $url = trim(explode(',', $dc['dc:identifier']['value'], 3)[1]);
   $date = $dc['dc:date']['value'];
   $timestamp = str_replace('-', '', $date);
+  $timestamp = str_replace(':', '', $timestamp);
+  $timestamp = str_replace(' ', '', $timestamp);
 
-  $res = sprintf('http://isle.localdomain:8092/%s/%s/%smp_/%s', $_SESSION['WR_USER'],
+  $res = sprintf('%s:8092/%s/%s/%smp_/%s',
+                 $GLOBALS['base_url'],
+	  	 $_SESSION['WR_USER'],
                  $coll_id, $timestamp, $url);
-//$dc_object['dc:identifier'][1]);
 
-  //print_r($res);
-  return [$url, $date, $res];
-                 
+  return [$url, $date, $res];              
 }
 
 
 function init_wr_session($object) {
-
   $orig_sesh = isset($_SESSION['WR_SESH']) ? $_SESSION['WR_SESH'] : null;
   $orig_user = isset($_SESSION['WR_USER']) ? $_SESSION['WR_USER'] : null;
 
@@ -142,12 +142,18 @@ function init_wr_session($object) {
 
   $is_new = ($curr_user != $orig_user) ||
             ($curr_sesh && $curr_sesh != $orig_sesh) ||
-            !isset($_SESSION['WR_UPLOADED: '.$object->id]);
+            !isset($_SESSION['WR_UPLOADED:' . $object->id]);
 
-  $res = setcookie('__wr_sesh', $curr_sesh, 0, "/");
+  if ($curr_sesh) {
+    $res = setcookie('__wr_sesh', $curr_sesh, 0, "/");
+  }
 
   //return [$curr_sesh, $curr_user, $is_new];
   return $is_new;
+}
+
+function clear_uploaded($object) {
+  unset($_SESSION['WR_UPLOADED:' . $object->id]);
 }
 
 function do_upload($object) {
@@ -160,6 +166,7 @@ function do_upload($object) {
                                   'external' => true));
 
   if (!isset($res['success']) && isset($res['error']) && $res['error'] != 'duplicate_name') {
+    clear_uploaded($object);
     return;
   }
 
@@ -179,7 +186,7 @@ function do_upload($object) {
                         $put_file=$file);
 
     if (!isset($res['upload_id'])) {
-      print_r($res['upload_id']);
+      clear_uploaded($object);
       return;
     }
 
@@ -193,7 +200,7 @@ function do_upload($object) {
       usleep(0.5 * 1000000);
     }
 
-    $_SESSION['WR_UPLOADED: ' . $object->id] = true;    
+    $_SESSION['WR_UPLOADED:' . $object->id] = true;    
 
   } catch (Exception $e) {
     print_r($e);

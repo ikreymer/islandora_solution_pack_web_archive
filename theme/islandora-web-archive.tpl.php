@@ -16,11 +16,11 @@
     <?php endif; ?>
     <?php if (isset($islandora_entry_point_url)): ?>
     <p>Url: <b><?php print $archived_url ?></b></p>
-    <p>Date: <b><?php print $archived_date ?></b></p>
+    <p>Capture Date: <b><?php print $archived_date ?></b></p>
     <input type="button" class="form-submit" style="font-size: 18px" id="viewWR" value="Browse Web Archive"/>
     <script>
       jQuery("#viewWR").click(function() {
-        jQuery.colorbox({'html': '<span class="wrHeader">Date: <b><?php print $archived_date ?></b>&nbsp;&nbsp;Url: <b><?php print $archived_url ?></b></span><iframe src="<?php print $islandora_entry_point_url; ?>", seamless="seamless" style="min-width: 1000px; min-height: 800px;"></iframe>'});
+        jQuery.colorbox({'html': '<span class="wrHeader">Capture Date: <b><?php print $archived_date ?></b>&nbsp;&nbsp;Url: <b><?php print $archived_url ?></b></span><iframe src="<?php print $islandora_entry_point_url; ?>", seamless="seamless" style="min-width: 1000px; min-height: 800px;"></iframe>'});
 
         return false;
       });

@@ -14,6 +14,23 @@
         <?php print $islandora_content; ?>
       </div>
     <?php endif; ?>
+    <?php if (isset($islandora_entry_point_url)): ?>
+    <p>Url: <b><?php print $archived_url ?></b></p>
+    <p>Date: <b><?php print $archived_date ?></b></p>
+    <input type="button" class="form-submit" style="font-size: 18px" id="viewWR" value="Browse Web Archive"/>
+    <script>
+      jQuery("#viewWR").click(function() {
+        jQuery.colorbox({'html': '<span class="wrHeader">Date: <b><?php print $archived_date ?></b>&nbsp;&nbsp;Url: <b><?php print $archived_url ?></b></span><iframe src="<?php print $islandora_entry_point_url; ?>", seamless="seamless" style="min-width: 1000px; min-height: 800px;"></iframe>'});
+
+        return false;
+      });
+    </script>
+    <style>
+      #cboxLoadedContent {margin-top: 28px}
+      #cboxClose {top: 0px}
+      .wrHeader {top: 0px; position: absolute; float: left}
+    </style>
+    <?php endif; ?>
     </div>
     <div class="islandora-web-archive-metadata">
       <?php print $description; ?>

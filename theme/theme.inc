@@ -119,7 +119,7 @@ function init_wr_collection($warc_url, $object, $dc) {
 
   $res = sprintf('%s:8092/%s/%s/%smp_/%s',
                  $GLOBALS['base_url'],
-	  	 $_SESSION['WR_USER'],
+	               $_SESSION['WR_USER'],
                  $coll_id, $timestamp, $url);
 
   return [$url, $date, $res];              
@@ -141,8 +141,8 @@ function init_wr_session($object) {
   $curr_user = $_SESSION['WR_USER'];
 
   $is_new = ($curr_user != $orig_user) ||
-            ($curr_sesh && $curr_sesh != $orig_sesh) ||
-            !isset($_SESSION['WR_UPLOADED:' . $object->id]);
+            (!$curr_sesh || $curr_sesh != $orig_sesh) ||
+            !is_uploaded($object);
 
   if ($curr_sesh) {
     $res = setcookie('__wr_sesh', $curr_sesh, 0, "/");
@@ -152,9 +152,22 @@ function init_wr_session($object) {
   return $is_new;
 }
 
-function clear_uploaded($object) {
-  unset($_SESSION['WR_UPLOADED:' . $object->id]);
+function obj_to_upl_key($object) {
+  return 'WR_UPLOADED_' . $object->id;
 }
+
+function clear_uploaded($object) {
+  unset($_SESSION[obj_to_upl_key($object)]);
+}
+
+function is_uploaded($object) {
+  return isset($_SESSION[obj_to_upl_key($object)]);
+}
+
+function set_uploaded($object) {
+  $_SESSION[obj_to_upl_key($object)] = '1';
+}
+
 
 function do_upload($object) {
   $coll_id = str_replace(':', '-', $object->id);
@@ -200,7 +213,7 @@ function do_upload($object) {
       usleep(0.5 * 1000000);
     }
 
-    $_SESSION['WR_UPLOADED:' . $object->id] = true;    
+    set_uploaded($object);
 
   } catch (Exception $e) {
     print_r($e);

@@ -161,7 +161,19 @@ function clear_uploaded($object) {
 }
 
 function is_uploaded($object) {
-  return isset($_SESSION[obj_to_upl_key($object)]);
+  if (!isset($_SESSION[obj_to_upl_key($object)])) {
+    return false;
+  }
+
+  // Still ensure collection actually exists
+  $coll_id = str_replace(':', '-', $object->id);
+
+  $res = query_wr_api(sprintf('/collection/%s?user=' . $_SESSION['WR_USER'], $coll_id));
+  if (isset($res['error'])) {
+    return false;
+  }
+
+  return true;
 }
 
 function set_uploaded($object) {
@@ -207,13 +219,12 @@ function do_upload($object) {
       $res = query_wr_api(sprintf('/upload/%s?user=%s', $res['upload_id'], $_SESSION['WR_USER']));
 
       if (isset($res['done']) && $res['done']) {
+        set_uploaded($object);
         break;
       }
 
       usleep(0.5 * 1000000);
     }
-
-    set_uploaded($object);
 
   } catch (Exception $e) {
     print_r($e);
